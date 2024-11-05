@@ -21,7 +21,7 @@
 script = ExtResource("1_1dv8h")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.6808, 27.3907)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.75354, 15.5359)
 
 [node name="pivot1" type="PinJoint3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.30276, 11.6823, 0.0707541)
