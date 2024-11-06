@@ -1,0 +1,81 @@
+[gd_scene load_steps=13 format=3 uid="uid://cd55sm1y5o0t2"]
+
+[ext_resource type="Script" path="res://origin.gd" id="1_1dv8h"]
+[ext_resource type="Script" path="res://arm_1.gd" id="2_uj2k6"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d6lpr"]
+albedo_color = Color(1, 0, 0.188235, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_4x2k2"]
+material = SubResource("StandardMaterial3D_d6lpr")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6tgl6"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_myh1i"]
+albedo_color = Color(0.98, 0.882, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_7d4po"]
+material = SubResource("ORMMaterial3D_myh1i")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d7vml"]
+albedo_color = Color(0, 0.683333, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_libjo"]
+material = SubResource("StandardMaterial3D_d7vml")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wyel2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jbtmy"]
+albedo_color = Color(0.207435, 0.745001, 3.85046e-07, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_lrx25"]
+material = SubResource("StandardMaterial3D_jbtmy")
+
+[node name="origin" type="Node3D"]
+script = ExtResource("1_1dv8h")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.77913, 8.4824, 17.8176)
+
+[node name="pivot1" type="PinJoint3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.30276, 11.6823, 0.0707541)
+node_a = NodePath("arm1")
+
+[node name="arm1" type="RigidBody3D" parent="pivot1"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -2.8076, -0.0239, -0.0707541)
+script = ExtResource("2_uj2k6")
+
+[node name="rectangle1" type="MeshInstance3D" parent="pivot1/arm1"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 5, 0, 0, 0)
+mesh = SubResource("BoxMesh_4x2k2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="pivot1/arm1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.07403e-08, 0, -0.245708)
+shape = SubResource("BoxShape3D_6tgl6")
+
+[node name="sphere1" type="MeshInstance3D" parent="pivot1/arm1"]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 1.38086e-07, 0.0146103, -3.15903)
+mesh = SubResource("SphereMesh_7d4po")
+
+[node name="pivot2" type="PinJoint3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.39827, 11.3464, 0)
+node_a = NodePath("../pivot1/arm1")
+node_b = NodePath("arm2")
+
+[node name="arm2" type="RigidBody3D" parent="pivot2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05393, -2.50554, 0)
+
+[node name="rectangle2" type="MeshInstance3D" parent="pivot2/arm2"]
+transform = Transform3D(0.5, 0, 0, 0, -2.18557e-08, -5, 0, 0.5, -2.18557e-07, -0.340903, -0.332594, 0)
+mesh = SubResource("BoxMesh_libjo")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="pivot2/arm2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.362805, 0, 0)
+shape = SubResource("BoxShape3D_wyel2")
+
+[node name="sphere2" type="MeshInstance3D" parent="pivot2/arm2"]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.320078, -3.48761, -0.0396467)
+mesh = SubResource("SphereMesh_lrx25")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5364, 8.5147)
