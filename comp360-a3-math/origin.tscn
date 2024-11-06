@@ -1,0 +1,92 @@
+[gd_scene load_steps=11 format=3 uid="uid://cd55sm1y5o0t2"]
+
+[ext_resource type="Script" path="res://pivot_1.gd" id="1_oryd7"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_vgusw"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_libjo"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wyel2"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_4x2k2"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6tgl6"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_cnbnl"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_tch2h"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_krwf6"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_p5742"]
+
+[node name="origin" type="Node3D"]
+script = ExtResource("1_oryd7")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.75354, 15.5359)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.08578, 8.5147)
+
+[node name="pivot1" type="PinJoint3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.30276, 11.6823, 0.0707541)
+node_a = NodePath("../arm1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="pivot1"]
+mesh = SubResource("SphereMesh_vgusw")
+
+[node name="pivot2" type="PinJoint3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.39827, 11.3464, 0)
+node_a = NodePath("../arm1")
+node_b = NodePath("../arm2")
+
+[node name="arm2" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.34434, 8.84086, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="arm2"]
+transform = Transform3D(0.5, 0, 0, 0, -2.18557e-08, -5, 0, 0.5, -2.18557e-07, -0.37244, -0.699245, 0)
+mesh = SubResource("BoxMesh_libjo")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="arm2"]
+shape = SubResource("BoxShape3D_wyel2")
+
+[node name="arm1" type="RigidBody3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 1.49516, 11.6584, 0)
+
+[node name="arm1MeshInstance3D" type="MeshInstance3D" parent="arm1"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 5, 0, 0, 0)
+mesh = SubResource("BoxMesh_4x2k2")
+
+[node name="arm1CollisionShape3D" type="CollisionShape3D" parent="arm1"]
+shape = SubResource("BoxShape3D_6tgl6")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="arm1"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.26476e-07, -0.311999, -2.89343)
+mesh = SubResource("SphereMesh_cnbnl")
+skeleton = NodePath("../../pivot2")
+
+[node name="sphere1" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.327911, 2.31775, 0)
+visible = false
+
+[node name="notch1" type="MeshInstance3D" parent="sphere1"]
+transform = Transform3D(-0.00488695, 1.99999, 0, -1.99999, -0.00488695, 0, 0, 0, 2, -1.5516, 1.73154, 0)
+mesh = SubResource("SphereMesh_tch2h")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="sphere1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.54192, 1.6148, 0)
+shape = SubResource("SphereShape3D_krwf6")
+
+[node name="sphere2" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -7.08952, 0)
+visible = false
+
+[node name="notch2" type="MeshInstance3D" parent="sphere2"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0.100553, 0)
+mesh = SubResource("SphereMesh_tch2h")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="sphere2"]
+shape = SubResource("SphereShape3D_p5742")
