@@ -1,44 +1,58 @@
 extends Node3D
 
+# The 2 objects in the physical system
 @onready var ball1 = $mass1
 @onready var ball2 = $mass2
 
-var g = 9.8
+# Gravity
+var gravity = 9.8
+
+# Masses
 var mass1 = 2.0
 var mass2 = 1.0
+
+# Starting angles
 var angle1 = PI/6.0
 var angle2 = PI/3.0
-var av1 = 3.0
-var av2 = 2.0
+
+# Starting angular velocities
+var angularVelocity1 = 3.0
+var angularVelocity2 = 2.0
+
+# Length of strings between pivots
 var length1 = 3.0
 var length2 = 1.0
 
+# Scales the size of the masses relative to their mass
 func _ready() -> void:
 	ball1.scale = ball1.scale * mass1
 	ball2.scale = ball2.scale * mass2
 
-func _physics_process(_delta: float) -> void:
-	var y = Vector4(angle1, angle2, av1, av2)
-	var k1 = lagrangeRightHandSide(y.x, y.y, y.z, y.w)
-	var y1 = y + 1.0/60.0 * k1 / 2.0
-	var k2 = lagrangeRightHandSide(y1.x, y1.y, y1.z, y1.w)
-	var y2 = y + 1.0/60.0 * k2 / 2.0
-	var k3 = lagrangeRightHandSide(y2.x, y2.y, y2.z, y2.w)
-	var y3 = y + 1.0/60.0 * k3
-	var k4 = lagrangeRightHandSide(y3.x, y3.y, y3.z, y3.w)
-	var R = 1.0/6.0 * 1.0/60.0 * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
+func _physics_process(delta: float) -> void:
 	
+	# Store angles and angular velocities in a vector for easier modification
+	var y = Vector4(angle1, angle2, angularVelocity1, angularVelocity2)
+	
+	# RK4 constants
+	var k1 = lagrangeRightHandSide(y)
+	var k2 = lagrangeRightHandSide(y + delta * k1 / 2.0)
+	var k3 = lagrangeRightHandSide(y + delta * k2 / 2.0)
+	var k4 = lagrangeRightHandSide(y + delta * k3)
+	
+	# Combination of RK4 constants give new angles and angular velocities
+	var R = 1.0/6.0 * delta * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
+	
+	# Update angles and angular velocities
 	angle1 = angle1 + R[0]
 	angle2 = angle2 + R[1]
-	av1 = av1 + R[2]
-	av2 = av2 + R[3]
+	angularVelocity1 = angularVelocity1 + R[2]
+	angularVelocity2 = angularVelocity2 + R[3]
 	
-	ball1.position.x = length1 * sin(angle1)
-	ball1.position.y = -length1 * cos(angle1)
-	
-	ball2.position.x = ball1.position.x + length2 * sin(angle2)
-	ball2.position.y = ball1.position.y - length2 * cos(angle2)
+	# Update the positions of masses based on angles
+	ball1.position = Vector3(length1 * sin(angle1), -length1 * cos(angle1), 0)
+	ball2.position = Vector3(ball1.position.x + length2 * sin(angle2), ball1.position.y - length2 * cos(angle2), 0)
 
+# In the _proccess function a mesh is drawn from the pivot to ball1 to ball2
 func _process(_delta: float) -> void:
 	var immediate_mesh = ImmediateMesh.new()
 	immediate_mesh.clear_surfaces()
@@ -51,28 +65,44 @@ func _process(_delta: float) -> void:
 	immediate_mesh.surface_end()
 	$line.mesh = immediate_mesh
 
+ # Potential energy = mass * gravity * height
 func _potentialEnergy() -> float:
 	var height1 = -length1 * cos(angle1)
 	var height2 = height1 - length2 * cos(angle2)
-	return mass1 * g * height1 + mass2 * g * height2
+	return mass1 * gravity * height1 + mass2 * gravity * height2
 
+# Kinetic energy = 1/2 * mass * velocity squared
+# Velocity of ball2 is more complicated as its movement is based on ball1
 func _kineticEnergy() -> float:
-	var kinetic1 = 0.5 * mass1 * pow((length1 * av1),2)
-	var kinetic2 = 0.5 * mass2 * (pow((length1 * av1),2) + pow((length2 * av2),2) + 2 * length1 * length2 * av1 * av2 * cos(angle1 - angle2))
+	var kinetic1 = 0.5 * mass1 * pow((length1 * angularVelocity1),2)
+	var kinetic2 = 0.5 * mass2 * (pow((length1 * angularVelocity1),2) + pow((length2 * angularVelocity2),2) + 2 * length1 * length2 * angularVelocity1 * angularVelocity2 * cos(angle1 - angle2))
 	return kinetic1 + kinetic2
 
+# Mechanical energy = Potential energy + Kinetic energy
 func _mechanicalEnergy() -> float:
 	return _potentialEnergy() + _kineticEnergy()
 
-func lagrangeRightHandSide(t1, t2, w1, w2) -> Vector4:
-	var a1 = (length2 / length1) * (mass2 / (mass1 + mass2)) * cos(t1 - t2)
-	var a2 = (length1 / length2) * cos(t1 - angle2)
+func lagrangeRightHandSide(array :Vector4) -> Vector4:
+	# Angles
+	var theta1 = array.x
+	var theta2 = array.y
 	
-	var f1 = -(length2 / length1) * (mass2 / (mass1 + mass2)) * pow(w2,2) * sin(t1 - t2) - (g / length1) * sin(t1)
-	var f2 = (length1 / length2) * pow(w1,2) * sin(t1 - t2) - (g / length2) * sin(t2)
+	# Angular velocity
+	var omega1 = array.z
+	var omega2 = array.w
 	
-	var g1 = (f1 - a1 * f2) / (1 - a1 * a2)
-	var g2 = (f2 -a2 * f1) / (1 - a1 * a2)
+	# Scalars
+	var scalar1 = (length2 / length1) * (mass2 / (mass1 + mass2)) * cos(theta1 - theta2)
+	var scalar2 = (length1 / length2) * cos(theta1 - angle2)
 	
-	var array = Vector4(w1, w2, g1, g2)
-	return array
+	# Forces on each mass
+	var force1 = -(length2 / length1) * (mass2 / (mass1 + mass2)) * pow(omega2,2) * sin(theta1 - theta2) - (gravity / length1) * sin(theta1)
+	var force2 = (length1 / length2) * pow(omega1,2) * sin(theta1 - theta2) - (gravity / length2) * sin(theta2)
+	
+	# Angular accelerations
+	var angularAcceleration1 = (force1 - scalar1 * force2) / (1 - scalar1 * scalar2)
+	var angularAcceleration2 = (force2 -scalar2 * force1) / (1 - scalar1 * scalar2)
+	
+	# Store result in a vector for easier use in calculation
+	var result = Vector4(omega1, omega2, angularAcceleration1, angularAcceleration2)
+	return result
