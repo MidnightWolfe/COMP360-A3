@@ -1,0 +1,60 @@
+[gd_scene load_steps=11 format=3 uid="uid://t66hwue2ckgh"]
+
+[ext_resource type="Script" path="res://physics.gd" id="1_f0xjs"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_dm215"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_t5dm8"]
+sky_material = SubResource("ProceduralSkyMaterial_dm215")
+
+[sub_resource type="Environment" id="Environment_jffiq"]
+background_mode = 2
+sky = SubResource("Sky_t5dm8")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_x6qvs"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_edm5e"]
+albedo_color = Color(0, 0, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_r7ej5"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0rv8h"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_ow3h2"]
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_5i6ex"]
+
+[node name="origin" type="Node3D"]
+script = ExtResource("1_f0xjs")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_jffiq")
+
+[node name="mass1" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("SphereMesh_x6qvs")
+surface_material_override/0 = SubResource("StandardMaterial3D_edm5e")
+
+[node name="mass2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("SphereMesh_r7ej5")
+surface_material_override/0 = SubResource("StandardMaterial3D_0rv8h")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7.5)
+
+[node name="pivot" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = SubResource("SphereMesh_ow3h2")
+
+[node name="line" type="MeshInstance3D" parent="."]
+mesh = SubResource("ImmediateMesh_5i6ex")
