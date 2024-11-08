@@ -8,4 +8,4 @@ Markus: Used physics calculations for updating position of masses. Inspiration f
 
 Ryan:
 
-Liam: Created a double pendulum from bassic godot objects without hard coding, tho not as nice as markus's.
+Liam: Created a double pendulum from basic godot objects without hard coding, tho not as nice as markus's.
