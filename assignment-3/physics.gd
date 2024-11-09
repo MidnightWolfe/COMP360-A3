@@ -1,8 +1,13 @@
 extends Node3D
 
 # The 2 objects in the physical system
-@onready var ball1 = $mass1
-@onready var ball2 = $mass2
+@onready var ball1 = $pendulum/mass1
+@onready var ball2 = $pendulum/mass2
+
+@onready var camera = $Camera3D
+@onready var pendulum = $pendulum
+var counter = 1.0
+var points : PackedVector3Array
 
 # Gravity
 var gravity = 9.8
@@ -40,10 +45,10 @@ func _physics_process(delta: float) -> void:
 	var z = Vector4(phi1, phi2, phiAngularVelocity1, phiAngularVelocity2)
 	
 	# RK4 constants
-	var k1 = lagrangeRightHandSide(y)
-	var k2 = lagrangeRightHandSide(y + delta * k1 / 2.0)
-	var k3 = lagrangeRightHandSide(y + delta * k2 / 2.0)
-	var k4 = lagrangeRightHandSide(y + delta * k3)
+	var k1 = _lagrangeRightHandSide(y)
+	var k2 = _lagrangeRightHandSide(y + delta * k1 / 2.0)
+	var k3 = _lagrangeRightHandSide(y + delta * k2 / 2.0)
+	var k4 = _lagrangeRightHandSide(y + delta * k3)
 	
 	#RK4 For horizontal
 	#Need to make a function for it
@@ -63,36 +68,48 @@ func _physics_process(delta: float) -> void:
 	angularVelocity1 = angularVelocity1 + R[2]
 	angularVelocity2 = angularVelocity2 + R[3]
 	
-	#Update for the phi velocities
-	phi1 += S[0]
-	phi2 += S[1]
-	phiAngularVelocity1 += S[2]
-	phiAngularVelocity2 += S[3]	
 	
+	points.append(ball2.global_position)
 	
 	# Update the positions of masses based on angles
-	# Going to need to make this work for 3D, atm its just 2 vectors
-	ball1.position = Vector3(
-		length1 * sin(angle1) * cos(phi1), #X
-		-length1 * cos(angle1), #Y
-		length1 * sin(angle1) * sin(phi1)) #Z sin instead of cos as I've uncovered
-	ball2.position = Vector3(
-		ball1.position.x + length2 * sin(angle2) * cos(phi2), #X
-		ball1.position.y - length2 * cos(angle2), #Y
-		ball1.position.z + length2 * sin(angle2) * sin(phi2)) #Z going to do the same as ball 1 by copying the X code but sin(
+	ball1.position = Vector3(length1 * sin(angle1), -length1 * cos(angle1), 0)
+	ball2.position = Vector3(ball1.position.x + length2 * sin(angle2), ball1.position.y - length2 * cos(angle2), 0)
+	
+	points.append(ball2.global_position)
+	
+	if points.size() > 1000:
+		points.remove_at(0)
+		points.remove_at(1)
+	
+	# Draw trail of ball2
+	var trail_mesh = ImmediateMesh.new()
+	trail_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	for i in points.size():
+		trail_mesh.surface_add_vertex(points[i])
+	trail_mesh.surface_end()
+	$trail.mesh = trail_mesh
+
 
 # In the _proccess function a mesh is drawn from the pivot to ball1 to ball2
 func _process(_delta: float) -> void:
 	var immediate_mesh = ImmediateMesh.new()
 	immediate_mesh.clear_surfaces()
-	
 	immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 	immediate_mesh.surface_add_vertex(Vector3(0,0,0))
 	immediate_mesh.surface_add_vertex(ball1.position)
 	immediate_mesh.surface_add_vertex(ball1.position)
 	immediate_mesh.surface_add_vertex(ball2.position)
 	immediate_mesh.surface_end()
-	$line.mesh = immediate_mesh
+	$pendulum/line.mesh = immediate_mesh
+	
+	# Make the camera orbit
+	camera.position.x = 6 * cos(counter / 1000.0)
+	camera.position.z = 6 * sin(counter / 1000.0)
+	camera.look_at(Vector3(0,0,0))
+	
+	# Rotate pendulum in z-axis
+	pendulum.rotation.x = (sin(counter / 200))
+	counter = counter + 1.0
 
  # Potential energy = mass * gravity * height
 func _potentialEnergy() -> float:
@@ -128,7 +145,7 @@ func _kineticEnergy() -> float:
 func _mechanicalEnergy() -> float:
 	return _potentialEnergy() + _kineticEnergy()
 
-func lagrangeRightHandSide(array :Vector4) -> Vector4:
+func _lagrangeRightHandSide(array :Vector4) -> Vector4:
 	# Angles
 	var theta1 = array.x
 	var theta2 = array.y
