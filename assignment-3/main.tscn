@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://t66hwue2ckgh"]
+[gd_scene load_steps=13 format=3 uid="uid://t66hwue2ckgh"]
 
 [ext_resource type="Script" path="res://physics.gd" id="1_f0xjs"]
 
@@ -15,6 +15,8 @@ sky = SubResource("Sky_t5dm8")
 tonemap_mode = 2
 glow_enabled = true
 
+[sub_resource type="PointMesh" id="PointMesh_8vec8"]
+
 [sub_resource type="SphereMesh" id="SphereMesh_x6qvs"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_edm5e"]
@@ -29,6 +31,8 @@ albedo_color = Color(1, 0, 0, 1)
 
 [sub_resource type="ImmediateMesh" id="ImmediateMesh_5i6ex"]
 
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_m4508"]
+
 [node name="origin" type="Node3D"]
 script = ExtResource("1_f0xjs")
 
@@ -39,22 +43,32 @@ shadow_enabled = true
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_jffiq")
 
-[node name="mass1" type="MeshInstance3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2, 0)
+
+[node name="pendulum" type="MeshInstance3D" parent="."]
+mesh = SubResource("PointMesh_8vec8")
+
+[node name="mass1" type="MeshInstance3D" parent="pendulum"]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 mesh = SubResource("SphereMesh_x6qvs")
+skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("StandardMaterial3D_edm5e")
 
-[node name="mass2" type="MeshInstance3D" parent="."]
+[node name="mass2" type="MeshInstance3D" parent="pendulum"]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 mesh = SubResource("SphereMesh_r7ej5")
+skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("StandardMaterial3D_0rv8h")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7.5)
-
-[node name="pivot" type="MeshInstance3D" parent="."]
+[node name="pivot" type="MeshInstance3D" parent="pendulum"]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 mesh = SubResource("SphereMesh_ow3h2")
+skeleton = NodePath("../..")
 
-[node name="line" type="MeshInstance3D" parent="."]
+[node name="line" type="MeshInstance3D" parent="pendulum"]
 mesh = SubResource("ImmediateMesh_5i6ex")
+skeleton = NodePath("../..")
+
+[node name="trail" type="MeshInstance3D" parent="."]
+mesh = SubResource("ImmediateMesh_m4508")
